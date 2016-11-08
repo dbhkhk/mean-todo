@@ -5,6 +5,8 @@ const express = require('express'),
 
 const app = express();
 
+require('./database');
+
 app.use('/', express.static('public'));
 
 app.use('/api', router);
