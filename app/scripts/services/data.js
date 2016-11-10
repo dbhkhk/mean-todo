@@ -3,7 +3,7 @@
 const angular = require('angular');
 
 angular.module('todoListApp')
-.service('dataService', function($http) {
+.service('dataService', function($http, $q) {
   this.getTodos = function(cb) {
     $http.get('/api/todos').then(cb);
   };
@@ -13,7 +13,21 @@ angular.module('todoListApp')
   };
   
   this.saveTodos = function(todos) {
-    console.log("I saved " + todos.length + " todos!");
+    const queue = [];
+    todos.forEach(todo => {
+      let request;
+      if (!todo._id) {
+        request = $http.post('/api/todos', todo);
+      } else {
+        request = $http.put('/api/todos/' + todo._id, todo).then(result => {
+          return result.data.todo;
+        });
+      }
+      queue.push(request);
+    });
+    return $q.all(queue).then(result => {
+      return console.log("I saved " + todos.length + " todos!");
+    });
   };
   
 });
